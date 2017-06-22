@@ -1,5 +1,5 @@
 
-a = open("/home/vivd/Work/archives/20170426_Wakzi_Katzidziras_archive/Mail/sample.mbox", "r")
+a = open("/home/vivd/Work/archives/wk/Mail/sample.mbox", "r")
 
 while True:
     line = a.readline()
