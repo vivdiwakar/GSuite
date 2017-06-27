@@ -1,3 +1,4 @@
+from sys import stderr
 import argparse
 import os
 from re import search, sub, IGNORECASE
@@ -31,8 +32,11 @@ def processBuffer(bufferArray, maildirDest):
             mailDate = line.split(': ')[1].split(' (')[0]
             asciidate = int(mktime(strptime(mailDate, timefmt)))
         elif search('^Subject:', line):
-            rawsubj = line.split('Subject: ')[1]
-            padsubj = sub(' ', '_', rawsubj)
+            try:
+                rawsubj = line.split('Subject: ')[1]
+                padsubj = sub(' ', '_', rawsubj)
+            except IndexError as e:
+                print(line, file=stderr)
         elif search('^Message-ID:', line, IGNORECASE):
             idHash = line.split('@')[0].split('<')[1].lower()
             break
