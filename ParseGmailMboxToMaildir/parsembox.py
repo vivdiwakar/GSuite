@@ -1,6 +1,6 @@
 import argparse
 import os
-import re
+from re import search, sub, IGNORECASE
 from time import mktime, strptime
 
 # Setup the parser
@@ -25,28 +25,29 @@ def processBuffer(bufferArray, maildirDest):
     idHash = None
 
     for line in bufferArray:
-        if re.search('^X-Gmail-Labels:', line):
+        if search('^X-Gmail-Labels:', line):
             labels = line.split(': ')[1].split(',')
-        elif re.search('^Date:', line):
+        elif search('^Date:', line):
             mailDate = line.split(': ')[1]
             asciidate = int(mktime(strptime(mailDate, timefmt)))
-        elif re.search('^Subject:', line):
+        elif search('^Subject:', line):
             rawsubj = line.split('Subject: ')[1]
-            padsubj = re.sub(' ', '_', rawsubj)
-        elif re.search('^Message-ID:', line, re.IGNORECASE):
+            padsubj = sub(' ', '_', rawsubj)
+        elif search('^Message-ID:', line, IGNORECASE):
             idHash = line.split('@')[0].split('<')[1].lower()
             break
 
     # for each of the labels, create a file and dump out the buffer contents
     if labels and asciidate and padsubj and idHash:
         for label in labels:
-            subbed = re.sub(' ', '_', label)
+            subbed = sub(' ', '_', label)
 
             try:
-                if not os.path.exists(maildir + '/' + subbed):
-                    os.makedirs(maildir + '/' + subbed, 0o755)
+                if not os.path.exists(maildirDest + '/' + subbed):
+                    os.makedirs(maildirDest + '/' + subbed, 0o755)
 
-                emailpath = maildir + '/' + subbed + '/' + str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
+                emailpath = maildirDest + '/' + subbed + '/' + str(asciidate) + '_' + str(padsubj) + '_' \
+                            + str(idHash) + '.txt'
                 emailfile = open(emailpath, 'w')
                 for line in bufferArray:
                     emailfile.write(str(line) + '\n')
@@ -71,12 +72,12 @@ try:
         cleaned = rawline.split('\n')[0]
 
         # determine what to do with each line read in
-        if buffering == False and re.search('^From .*@xxx ', cleaned):
+        if buffering == False and search('^From .*@xxx ', cleaned):
             buffer.append(cleaned)
             buffering = True
-        elif buffering == True and not re.search('^From .*@xxx ', cleaned):
+        elif buffering == True and not search('^From .*@xxx ', cleaned):
             buffer.append(cleaned)
-        elif buffering == True and re.search('^From .*@xxx ', cleaned):
+        elif buffering == True and search('^From .*@xxx ', cleaned):
             processBuffer(buffer, maildir)
             buffer.clear()
             buffer.append(cleaned)
