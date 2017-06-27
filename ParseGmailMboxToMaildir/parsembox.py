@@ -46,8 +46,11 @@ def processBuffer(bufferArray, maildirDest):
                 if not os.path.exists(maildirDest + '/' + subbed):
                     os.makedirs(maildirDest + '/' + subbed, 0o755)
 
-                emailpath = maildirDest + '/' + subbed + '/' + str(asciidate) + '_' + str(padsubj) + '_' \
-                            + str(idHash) + '.txt'
+                rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
+                # filename = sub('/', '-', rawfilename)
+                emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', rawfilename))
+                print(emailpath)
+
                 emailfile = open(emailpath, 'w')
                 for line in bufferArray:
                     emailfile.write(str(line) + '\n')
