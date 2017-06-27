@@ -28,7 +28,7 @@ def processBuffer(bufferArray, maildirDest):
         if search('^X-Gmail-Labels:', line):
             labels = line.split(': ')[1].split(',')
         elif search('^Date:', line):
-            mailDate = line.split(': ')[1]
+            mailDate = line.split(': ')[1].split(' (')[0]
             asciidate = int(mktime(strptime(mailDate, timefmt)))
         elif search('^Subject:', line):
             rawsubj = line.split('Subject: ')[1]
