@@ -17,18 +17,17 @@ args = parser.parse_args()
 
 # Handle each parsed email
 def processBuffer(bufferArray, maildirDest):
-    # Pre-defined date formats
+    # Pre-defined date formats and initializing variables
     datefmts = [
         "%a, %d %b %Y %H:%M:%S %z",
         "%d %b %Y %H:%M:%S %z"
     ]
-
-    # extract the key information needed for the output file(s) name and location(s)
     labels = None
     asciidate = None
     padsubj = None
     idHash = None
 
+    # extract the key information needed for the output file(s) name and location(s)
     for line in bufferArray:
         if search('^X-Gmail-Labels:', line):
             labels = line.split(': ')[1].split(',')
