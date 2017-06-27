@@ -7,6 +7,7 @@ from time import mktime, strptime
 #   Takes two compulsory arguments
 #   - full path to mbox file
 #   - full path to a directory within which the Maildir style spool will be created
+#   - Name of the user for the Maildir
 parser = argparse.ArgumentParser()
 parser.add_argument('mbox', help='Full path to the mbox file.', type=str)
 parser.add_argument('dest', help='Full path to output the file structure.', type=str)
@@ -36,8 +37,8 @@ def processBuffer(bufferArray, maildirDest):
             idHash = line.split('@')[0].split('<')[1].lower()
             break
 
+    # for each of the labels, create a file and dump out the buffer contents
     if labels and asciidate and padsubj and idHash:
-        # for each of the labels, create a file and dump out the buffer contents
         for label in labels:
             subbed = re.sub(' ', '_', label)
 
@@ -45,8 +46,11 @@ def processBuffer(bufferArray, maildirDest):
                 if not os.path.exists(maildir + '/' + subbed):
                     os.makedirs(maildir + '/' + subbed, 0o755)
 
-                emailfile = maildir + '/' + subbed + '/' + str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
-                print(emailfile)
+                emailpath = maildir + '/' + subbed + '/' + str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
+                emailfile = open(emailpath, 'w')
+                for line in bufferArray:
+                    emailfile.write(str(line) + '\n')
+                emailfile.close()
 
             except PermissionError as e:
                 print("Fatal error on creating directory: " + str(e) + "; exiting.")
