@@ -13,3 +13,6 @@ https://takeout.google.com/settings/takeout, and
 ```
 $ python3 /path/to/parsembox.py /path/to/mbox_file.mbox /path/to/Maildir
 ```
+
+## Fixes ##
+  - Handle the case where the destination Maildir already exists  
