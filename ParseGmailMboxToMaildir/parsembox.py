@@ -32,7 +32,7 @@ def processBuffer(bufferArray, maildirDest):
             mailDate = line.split(': ')[1].split(' (')[0]
             asciidate = int(mktime(strptime(mailDate, timefmt)))
         elif search('^Subject:', line):
-            rawsubj = line.split(': ')
+            rawsubj = line.split('Subject: ')
             if len(rawsubj) == 2:
                 padsubj = sub(' ', '_', rawsubj[1])
             else:
