@@ -58,42 +58,43 @@ def processBuffer(bufferArray, maildirDest):
                 exit(1)
 
 # The main brains of the script, the actual runner
-try:
-    mbox = open(args.mbox, "r")
-    maildir = args.dest + "/" + args.user
-    if not os.path.exists(maildir):
-        os.makedirs(maildir, 0o755)
+if __name__ == '__main__':
+    try:
+        mbox = open(args.mbox, "r")
+        maildir = args.dest + "/" + args.user
+        if not os.path.exists(maildir):
+            os.makedirs(maildir, 0o755)
 
-    buffer = []
-    buffering = False
-
-    rawline = mbox.readline()
-    while rawline:
-        cleaned = rawline.split('\n')[0]
-
-        # determine what to do with each line read in
-        if buffering == False and search('^From .*@xxx ', cleaned):
-            buffer.append(cleaned)
-            buffering = True
-        elif buffering == True and not search('^From .*@xxx ', cleaned):
-            buffer.append(cleaned)
-        elif buffering == True and search('^From .*@xxx ', cleaned):
-            processBuffer(buffer, maildir)
-            buffer.clear()
-            buffer.append(cleaned)
+        buffer = []
+        buffering = False
 
         rawline = mbox.readline()
+        while rawline:
+            cleaned = rawline.split('\n')[0]
 
-    # the loop will break out at EOF, but won't process the contents of the last buffer since there is not header for
-    # the next email, so the buffer needs to be flushed by calling the process function manually
-    processBuffer(buffer, maildir)
+            # determine what to do with each line read in
+            if buffering is False and search('^From .*@xxx ', cleaned):
+                buffer.append(cleaned)
+                buffering = True
+            elif buffering is True and not search('^From .*@xxx ', cleaned):
+                buffer.append(cleaned)
+            elif buffering is True and search('^From .*@xxx ', cleaned):
+                processBuffer(buffer, maildir)
+                buffer.clear()
+                buffer.append(cleaned)
 
-    mbox.close()
+            rawline = mbox.readline()
 
-except FileNotFoundError as e:
-    print("Fatal error: " + str(e) + "; exiting.")
-    exit(1)
+        # the loop will break out at EOF, but won't process the contents of the last buffer since there is not header for
+        # the next email, so the buffer needs to be flushed by calling the process function manually
+        processBuffer(buffer, maildir)
 
-except PermissionError as e:
-    print("Fatal error on creating directory: " + str(e) + "; exiting.")
-    exit(1)
+        mbox.close()
+
+    except FileNotFoundError as e:
+        print("Fatal error: " + str(e) + "; exiting.")
+        exit(1)
+
+    except PermissionError as e:
+        print("Fatal error on creating directory: " + str(e) + "; exiting.")
+        exit(1)
