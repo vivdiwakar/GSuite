@@ -17,7 +17,11 @@ args = parser.parse_args()
 
 # Handle each parsed email
 def processBuffer(bufferArray, maildirDest):
-    timefmt = "%a, %d %b %Y %H:%M:%S %z"
+    # Pre-defined date formats
+    datefmts = [
+        "%a, %d %b %Y %H:%M:%S %z",
+        "%d %b %Y %H:%M:%S %z"
+    ]
 
     # extract the key information needed for the output file(s) name and location(s)
     labels = None
@@ -30,7 +34,11 @@ def processBuffer(bufferArray, maildirDest):
             labels = line.split(': ')[1].split(',')
         elif search('^Date:', line):
             mailDate = line.split(': ')[1].split(' (')[0]
-            asciidate = int(mktime(strptime(mailDate, timefmt)))
+            for fmt in datefmts:
+                try:
+                    asciidate = int(mktime(strptime(mailDate, fmt)))
+                except ValueError:
+                    pass
         elif search('^Subject:', line):
             rawsubj = line.split('Subject: ')
             if len(rawsubj) == 2:
@@ -51,7 +59,6 @@ def processBuffer(bufferArray, maildirDest):
                     os.makedirs(maildirDest + '/' + subbed, 0o755)
 
                 rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
-                # filename = sub('/', '-', rawfilename)
                 emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', rawfilename))
                 print(emailpath)
 
