@@ -1,4 +1,3 @@
-from sys import stderr
 import argparse
 import os
 from re import search, sub, IGNORECASE
