@@ -18,31 +18,39 @@ def processBuffer(bufferArray, maildirDest):
     timefmt = "%a, %d %b %Y %H:%M:%S %z"
 
     # extract the key information needed for the output file(s) name and location(s)
+    labels = None
+    asciidate = None
+    padsubj = None
+    idHash = None
+
     for line in bufferArray:
         if re.search('^X-Gmail-Labels:', line):
             labels = line.split(': ')[1].split(',')
-            #print(labels)
         elif re.search('^Date:', line):
             mailDate = line.split(': ')[1]
             asciidate = int(mktime(strptime(mailDate, timefmt)))
-            #print(asciidate)
+        elif re.search('^Subject:', line):
+            rawsubj = line.split('Subject: ')[1]
+            padsubj = re.sub(' ', '_', rawsubj)
         elif re.search('^Message-ID:', line, re.IGNORECASE):
             idHash = line.split('@')[0].split('<')[1].lower()
-            #print(idHash)
             break
 
-    for label in labels:
-        subbed = re.sub(' ', '_', label)
+    if labels and asciidate and padsubj and idHash:
+        # for each of the labels, create a file and dump out the buffer contents
+        for label in labels:
+            subbed = re.sub(' ', '_', label)
 
-        try:
-            if not os.path.exists(maildir + '/' + subbed):
-                os.makedirs(maildir + '/' + subbed, 0o755)
+            try:
+                if not os.path.exists(maildir + '/' + subbed):
+                    os.makedirs(maildir + '/' + subbed, 0o755)
 
-            # email = maildir + '/' + subbed + '/' + asciidate + '_' + idHash + '_'
+                emailfile = maildir + '/' + subbed + '/' + str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
+                print(emailfile)
 
-        except PermissionError as e:
-            print("Fatal error on creating directory: " + str(e) + "; exiting.")
-            exit(1)
+            except PermissionError as e:
+                print("Fatal error on creating directory: " + str(e) + "; exiting.")
+                exit(1)
 
 # The main brains of the script, the actual runner
 try:
@@ -71,7 +79,8 @@ try:
 
         rawline = mbox.readline()
 
-    # the loop will always break out before the last contents of the buffer are handled, so needs to be called manually
+    # the loop will break out at EOF, but won't process the contents of the last buffer since there is not header for
+    # the next email, so the buffer needs to be flushed by calling the process function manually
     processBuffer(buffer, maildir)
 
     mbox.close()
