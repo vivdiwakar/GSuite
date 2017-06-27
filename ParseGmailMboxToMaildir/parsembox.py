@@ -60,8 +60,6 @@ def processBuffer(bufferArray, maildirDest):
 
                 rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
                 emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', rawfilename))
-                print(emailpath)
-
                 emailfile = open(emailpath, 'w')
                 for line in bufferArray:
                     emailfile.write(str(line) + '\n')
