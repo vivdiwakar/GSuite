@@ -1,6 +1,6 @@
 import argparse
 import os
-from re import search, sub, IGNORECASE
+from re import search, sub
 from time import mktime, strptime
 
 # Setup the parser
@@ -24,12 +24,26 @@ def processBuffer(bufferArray, maildirDest):
     labels = None
     asciidate = None
     padsubj = None
-    idHash = None
+    threadID = None
 
     # extract the key information needed for the output file(s) name and location(s)
-    for line in bufferArray:
+    for index, line in enumerate(bufferArray):
         if search('^X-Gmail-Labels:', line):
-            labels = line.split(': ')[1].split(',')
+            mlLabel = line
+            index += 1
+            while not search('^Delivered-To:', bufferArray[index]):
+                mlLabel += str(bufferArray[index])
+                index += 1
+            stripped = sub('"', '', str(mlLabel))
+            labels = str(stripped).split(': ')[1].split(',')
+        elif search('^X-GM-THRID:', line):
+            threadID = line.split(': ')[1]
+        elif search('^Subject:', line):
+            rawsubj = line.split('Subject: ')
+            if len(rawsubj) == 2:
+                padsubj = sub(' ', '_', rawsubj[1])
+            else:
+                padsubj = '<NO_SUBJECT>'
         elif search('^Date:', line):
             mailDate = line.split(': ')[1].split(' (')[0]
             for fmt in datefmts:
@@ -37,27 +51,20 @@ def processBuffer(bufferArray, maildirDest):
                     asciidate = int(mktime(strptime(mailDate, fmt)))
                 except ValueError:
                     pass
-        elif search('^Subject:', line):
-            rawsubj = line.split('Subject: ')
-            if len(rawsubj) == 2:
-                padsubj = sub(' ', '_', rawsubj[1])
-            else:
-                padsubj = '<NO_SUBJECT>'
-        elif search('^Message-ID:', line, IGNORECASE):
-            idHash = line.split('@')[0].split('<')[1].lower()
             break
 
     # for each of the labels, create a file and dump out the buffer contents
-    if labels and asciidate and padsubj and idHash:
+    if labels and asciidate and padsubj and threadID:
         for label in labels:
-            subbed = sub(' ', '_', label)
+            subbed = sub(' ', '_', label.lstrip().rstrip())
 
             try:
                 if not os.path.exists(maildirDest + '/' + subbed):
                     os.makedirs(maildirDest + '/' + subbed, 0o755)
 
-                rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(idHash) + '.txt'
+                rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(threadID) + '.txt'
                 emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', rawfilename))
+
                 emailfile = open(emailpath, 'w')
                 for line in bufferArray:
                     emailfile.write(str(line) + '\n')
