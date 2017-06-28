@@ -39,17 +39,10 @@ def processBuffer(bufferArray, maildirDest):
                 pass
             stripped = sub('"', '', str(mlLabel))
             labels = str(stripped).split(': ')[1].split(',')
-            #print("LABELS:> " + str(labels))
+            print("LABELS:> " + str(labels))
         elif search('^X-GM-THRID:', line):
             threadID = line.split(': ')[1]
-            #print("THREAD_ID:> " + str(threadID))
-        elif search('^Subject:', line):
-            rawsubj = line.split('Subject: ')
-            if len(rawsubj) == 2:
-                padsubj = sub(' ', '_', rawsubj[1])
-            else:
-                padsubj = '<NO_SUBJECT>'
-            #print("SUBJECT:> " + str(padsubj))
+            print("THREAD_ID:> " + str(threadID))
         elif search('^Date:', line):
             mailDate = line.split(': ')[1].split(' (')[0]
             for fmt in datefmts:
@@ -57,8 +50,15 @@ def processBuffer(bufferArray, maildirDest):
                     asciidate = int(mktime(strptime(mailDate, fmt)))
                 except ValueError:
                     pass
-            #print("DATE:> " + str(asciidate))
-            #break
+            print("DATE:> " + str(asciidate))
+        elif search('^Subject:', line):
+            rawsubj = line.split('Subject: ')
+            if len(rawsubj) == 2:
+                padsubj = sub(' ', '_', rawsubj[1])
+            else:
+                padsubj = '<NO_SUBJECT>'
+            print("SUBJECT:> " + str(padsubj))
+            break
 
     #exit(0)
 
