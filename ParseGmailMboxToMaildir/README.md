@@ -11,8 +11,8 @@ https://takeout.google.com/settings/takeout, and
 
 ## Usage ##
 ```
-$ python3 /path/to/parsembox.py /path/to/mbox_file.mbox /path/to/Maildir
+$ python3 /path/to/parsembox.py /path/to/mbox_file.mbox /path/to/Maildir <MAILDIR_NAME>
 ```
 
-## Fixes ##
-  - Handle multi-line GMail labels
+## Output format ##
+/path/to/Maildir/<MAILDIR_NAME>/<LABELS_DIRS>/<EPOCH_DATE>\_<EMAIL_SUBJECT>\_<THREAD_ID>.txt
