@@ -31,19 +31,25 @@ def processBuffer(bufferArray, maildirDest):
         if search('^X-Gmail-Labels:', line):
             mlLabel = line
             index += 1
-            while not search('^Delivered-To:', bufferArray[index]):
-                mlLabel += str(bufferArray[index])
-                index += 1
+            try:
+                while not search('^.*:', bufferArray[index]):
+                    mlLabel += str(bufferArray[index])
+                    index += 1
+            except IndexError:
+                pass
             stripped = sub('"', '', str(mlLabel))
             labels = str(stripped).split(': ')[1].split(',')
+            #print("LABELS:> " + str(labels))
         elif search('^X-GM-THRID:', line):
             threadID = line.split(': ')[1]
+            #print("THREAD_ID:> " + str(threadID))
         elif search('^Subject:', line):
             rawsubj = line.split('Subject: ')
             if len(rawsubj) == 2:
                 padsubj = sub(' ', '_', rawsubj[1])
             else:
                 padsubj = '<NO_SUBJECT>'
+            #print("SUBJECT:> " + str(padsubj))
         elif search('^Date:', line):
             mailDate = line.split(': ')[1].split(' (')[0]
             for fmt in datefmts:
@@ -51,7 +57,10 @@ def processBuffer(bufferArray, maildirDest):
                     asciidate = int(mktime(strptime(mailDate, fmt)))
                 except ValueError:
                     pass
-            break
+            #print("DATE:> " + str(asciidate))
+            #break
+
+    #exit(0)
 
     # for each of the labels, create a file and dump out the buffer contents
     if labels and asciidate and padsubj and threadID:
