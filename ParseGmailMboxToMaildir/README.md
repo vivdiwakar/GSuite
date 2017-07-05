@@ -1,4 +1,4 @@
-# ParseGmailMboxToMaildir #
+you# ParseGmailMboxToMaildir #
 
 ## Description ##
 This script takes an mbox format file as exported from 
@@ -14,5 +14,7 @@ https://takeout.google.com/settings/takeout, and
 $ python3 /path/to/parsembox.py /path/to/mbox_file.mbox /path/to/Maildir <MAILDIR_NAME>
 ```
 
-## Output format ##
+## Output format and paths ##
+```
 /path/to/Maildir/<MAILDIR_NAME>/<LABELS_DIRS>/<EPOCH_DATE>\_<EMAIL_SUBJECT>\_<THREAD_ID>.txt
+```
