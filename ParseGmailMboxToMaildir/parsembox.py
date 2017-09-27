@@ -1,6 +1,6 @@
 import argparse
 import os
-from re import search, sub
+from re import search, sub, escape
 from time import mktime, strptime
 
 # Setup the parser
@@ -17,10 +17,9 @@ args = parser.parse_args()
 # Handle each parsed email
 def processBuffer(bufferArray, maildirDest):
     # Pre-defined date formats and initializing variables
-    datefmts = [
-        "%a, %d %b %Y %H:%M:%S %z",
-        "%d %b %Y %H:%M:%S %z"
-    ]
+    datefmts = ["%a, %d %b %Y %H:%M:%S %z", "%d %b %Y %H:%M:%S %z"]
+    illegalchars = ['!', '?', '<', '>', ':', '"', '/', '\\', '*', '~', '#', '%', '&', '[', ']', '(', ')', '{', '}',
+                    '|', '@', ' ', '\'', '.']
     labels = None
     asciidate = None
     padsubj = None
@@ -65,10 +64,11 @@ def processBuffer(bufferArray, maildirDest):
                 if not os.path.exists(maildirDest + '/' + subbed):
                     os.makedirs(maildirDest + '/' + subbed, 0o755)
 
-                rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(threadID) + '.txt'
-                emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', rawfilename))
+                rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(threadID)
+                strippedfilename = sub(u'(?u)[' + escape(''.join(illegalchars)) + ']', '', rawfilename)
+                emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', strippedfilename)) + '.txt'
 
-                emailfile = open(emailpath, 'w')
+                emailfile = open(emailpath, mode='w', encoding="utf8")
                 for line in bufferArray:
                     emailfile.write(str(line) + '\n')
                 emailfile.close()
@@ -80,7 +80,7 @@ def processBuffer(bufferArray, maildirDest):
 # The main brains of the script, the actual runner
 if __name__ == '__main__':
     try:
-        mbox = open(args.mbox, "r")
+        mbox = open(args.mbox, mode="r", encoding="utf8")
         maildir = args.dest + "/" + args.user
         if not os.path.exists(maildir):
             os.makedirs(maildir, 0o755)
@@ -116,5 +116,9 @@ if __name__ == '__main__':
         exit(1)
 
     except PermissionError as e:
-        print("Fatal error on creating directory: " + str(e) + "; exiting.")
+        print("Fatal error: " + str(e) + "; exiting.")
+        exit(1)
+
+    except OSError as e:
+        print("Fatal error: " + str(e) + "; exiting.")
         exit(1)
