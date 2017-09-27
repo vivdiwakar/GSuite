@@ -50,7 +50,8 @@ def processBuffer(bufferArray, maildirDest):
         elif search('^Subject:', line):
             rawsubj = line.split('Subject: ')
             if len(rawsubj) == 2:
-                padsubj = sub(' ', '_', rawsubj[1])
+                # padsubj = sub(' ', '_', rawsubj[1])
+                padsubj = (rawsubj[1][:185] + '...') if len(rawsubj[1]) > 188 else rawsubj[1]
             else:
                 padsubj = '<NO_SUBJECT>'
             break
@@ -64,7 +65,7 @@ def processBuffer(bufferArray, maildirDest):
                 if not os.path.exists(maildirDest + '/' + subbed):
                     os.makedirs(maildirDest + '/' + subbed, 0o755)
 
-                rawfilename = str(asciidate) + '_' + str(padsubj) + '_' + str(threadID)
+                rawfilename = str(asciidate) + '_' + str(threadID) + '_' + str(padsubj)
                 strippedfilename = sub(u'(?u)[' + escape(''.join(illegalchars)) + ']', '', rawfilename)
                 emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', strippedfilename)) + '.txt'
 
