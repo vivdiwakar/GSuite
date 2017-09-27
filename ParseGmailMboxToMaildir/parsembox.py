@@ -20,6 +20,7 @@ def processBuffer(bufferArray, maildirDest):
     datefmts = ["%a, %d %b %Y %H:%M:%S %z", "%d %b %Y %H:%M:%S %z"]
     illegalchars = ['!', '?', '<', '>', ':', '"', '/', '\\', '*', '~', '#', '%', '&', '[', ']', '(', ')', '{', '}',
                     '|', '@', ' ', '\'', '.']
+    WindowsMaxPathLen = 135
     labels = None
     asciidate = None
     padsubj = None
@@ -50,8 +51,8 @@ def processBuffer(bufferArray, maildirDest):
         elif search('^Subject:', line):
             rawsubj = line.split('Subject: ')
             if len(rawsubj) == 2:
-                # padsubj = sub(' ', '_', rawsubj[1])
-                padsubj = (rawsubj[1][:185] + '...') if len(rawsubj[1]) > 188 else rawsubj[1]
+                padsubj = (rawsubj[1][:WindowsMaxPathLen] + '...') \
+                    if len(rawsubj[1]) > (WindowsMaxPathLen + 3) else rawsubj[1]
             else:
                 padsubj = '<NO_SUBJECT>'
             break
