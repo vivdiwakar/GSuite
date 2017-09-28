@@ -20,7 +20,8 @@ USING IN PRODUCTION.__
 
 ## Assumptions & Limitations ##
 
-  - Python version: 3.5.2 amd64 on Windows 10 and Ubuntu 16.04 Linux 
+  - Python version: 3.5.2 amd64 on Windows 10 and Ubuntu 16.04 Linux; _should_ 
+  work with any other version of Python 3 as no non-standard libraries used
   - Google outputs the mbox in DOS-style with CRLF line terminators, so the 
   _read_ operation on the mbox file is done with an explicit '__\r\n__' line 
   terminator defined  
