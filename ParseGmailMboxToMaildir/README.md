@@ -15,6 +15,9 @@ __THIS HAS ONLY BEEN TESTED ON WINDOWS 10 AND UBUNTU LINUX, ON MBOX FILES GENERA
 BY DATA EXPORTS FROM GOOGLE ONLY. AND IT WORKS; THIS DOESN'T MEAN IT WILL WORK FOR 
 YOU, (SORRY IF IT DOESN'T) AND I TAKE NO RESPONSIBILITY FOR ANYTHING GOING WRONG.__
 
+__SO, BACKUP EVERYTHING - MULTIPLE TIMES - AND TEST, TEST, TEST AND TEST AGAIN BEFORE 
+USING IN PRODUCTION.__
+
 ## Assumptions & Limitations ##
 
   - Google outputs the mbox in DOS-style with CRLF line terminators, so the 
@@ -25,6 +28,13 @@ YOU, (SORRY IF IT DOESN'T) AND I TAKE NO RESPONSIBILITY FOR ANYTHING GOING WRONG
   - Due to Windows having limits on the length of file path and name, full paths 
   are truncated at 135 characters (+ 3 characters for '...' and another 4 
   characters for '.txt' extension) if necessary
+  - Forced encoding to UTF-8 for file reading and writing, otherwise Windows uses 
+  _charmap_ encoding and fails out on some characters seen as illegal and / or 
+  not recognised
+  - Handles only two date formats at the moment, might need to extend this to 
+  suit any other combinations
+  - Common characters illegal in filename in Windows and Linux are stripped out, 
+  but the list might not be complete  
 
 ## Usage ##
 ```

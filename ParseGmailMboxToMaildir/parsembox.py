@@ -13,6 +13,7 @@ args = parser.parse_args()
 # Handle each parsed email
 def processBuffer(bufferArray, maildirDest):
     # Pre-defined date formats to handle
+    # This might need to be tweaked in future
     datefmts = ["%a, %d %b %Y %H:%M:%S %z", "%d %b %Y %H:%M:%S %z"]
     # Illegal characters that Windows can't handle for paths and file names
     illegalchars = ['!', '?', '<', '>', ':', '"', '/', '\\', '*', '~', '#', '%', '&', '[', ']', '(', ')', '{', '}',
