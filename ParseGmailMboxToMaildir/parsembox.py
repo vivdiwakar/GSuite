@@ -4,10 +4,6 @@ from re import search, sub, escape
 from time import mktime, strptime
 
 # Setup the parser
-#   Takes two compulsory arguments
-#   - full path to mbox file
-#   - full path to a directory within which the Maildir style spool will be created
-#   - Name of the user for the Maildir
 parser = argparse.ArgumentParser()
 parser.add_argument('mbox', help='Full path to the mbox file.', type=str)
 parser.add_argument('dest', help='Full path to output the file structure.', type=str)
@@ -16,10 +12,13 @@ args = parser.parse_args()
 
 # Handle each parsed email
 def processBuffer(bufferArray, maildirDest):
-    # Pre-defined date formats and initializing variables
+    # Pre-defined date formats to handle
     datefmts = ["%a, %d %b %Y %H:%M:%S %z", "%d %b %Y %H:%M:%S %z"]
+    # Illegal characters that Windows can't handle for paths and file names
     illegalchars = ['!', '?', '<', '>', ':', '"', '/', '\\', '*', '~', '#', '%', '&', '[', ']', '(', ')', '{', '}',
                     '|', '@', ' ', '\'', '.']
+    # Windows has file path + name limits, limiting to 135 characters + '...' filler (3 chars) + '.txt' file
+    # extension (4 chars)
     WindowsMaxPathLen = 135
     labels = None
     asciidate = None
@@ -67,32 +66,33 @@ def processBuffer(bufferArray, maildirDest):
                     os.makedirs(maildirDest + '/' + subbed, 0o755)
 
                 rawfilename = str(asciidate) + '_' + str(threadID) + '_' + str(padsubj)
-                strippedfilename = sub(u'(?u)[' + escape(''.join(illegalchars)) + ']', '', rawfilename)
+                strippedfilename = sub(u'(?u)[' + escape(''.join(illegalchars)) + ']', '_', rawfilename)
                 emailpath = maildirDest + '/' + subbed + '/' + str(sub('/', '-', strippedfilename)) + '.txt'
 
                 emailfile = open(emailpath, mode='w', encoding="utf8")
                 for line in bufferArray:
-                    emailfile.write(str(line) + '\n')
+                    emailfile.write(str(line + '\n'))
                 emailfile.close()
 
             except PermissionError as e:
-                print("Fatal error on creating directory: " + str(e) + "; exiting.")
+                print("Fatal error: " + str(e) + "; exiting.")
                 exit(1)
 
 # The main brains of the script, the actual runner
 if __name__ == '__main__':
     try:
-        mbox = open(args.mbox, mode="r", encoding="utf8")
+        buffer = []
+        buffering = False
+
         maildir = args.dest + "/" + args.user
         if not os.path.exists(maildir):
             os.makedirs(maildir, 0o755)
 
-        buffer = []
-        buffering = False
-
+        # Google returns the mbox file with DOS-style with CRLF line terminators, so needs to be defined here
+        mbox = open(args.mbox, mode="r", encoding="utf8", newline='\r\n')
         rawline = mbox.readline()
         while rawline:
-            cleaned = rawline.split('\n')[0]
+            cleaned = rawline.strip()
 
             # determine what to do with each line read in
             if buffering is False and search('^From .*@xxx ', cleaned):
@@ -107,8 +107,8 @@ if __name__ == '__main__':
 
             rawline = mbox.readline()
 
-        # the loop will break out at EOF, but won't process the contents of the last buffer since there is not header for
-        # the next email, so the buffer needs to be flushed by calling the process function manually
+        # the loop will break out at EOF, but won't process the contents of the last buffer since there is not header
+        # for the next email, so the buffer needs to be flushed by calling the process function manually
         processBuffer(buffer, maildir)
 
         mbox.close()
