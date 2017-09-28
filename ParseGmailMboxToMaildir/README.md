@@ -20,8 +20,9 @@ USING IN PRODUCTION.__
 
 ## Assumptions & Limitations ##
 
+  - Python version: 3.5.2 amd64 on Windows 10 and Ubuntu 16.04 Linux 
   - Google outputs the mbox in DOS-style with CRLF line terminators, so the 
-  _read_ operation on the mbox file is done with an explicit '\r\n' line 
+  _read_ operation on the mbox file is done with an explicit '__\r\n__' line 
   terminator defined  
   - Windows paths need to be written with forward slashes; for example 
   _C:\Users\username\folder_ should be written as _C:/Users/username/folder_ 
