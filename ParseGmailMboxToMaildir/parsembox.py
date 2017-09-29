@@ -6,8 +6,8 @@ from time import mktime, strptime
 # Setup the parser
 parser = argparse.ArgumentParser()
 parser.add_argument('mbox', help='Full path to the mbox file.', type=str)
-parser.add_argument('dest', help='Full path to output the file structure.', type=str)
-parser.add_argument('user', help='Name of the Maildir to be created.', type=str)
+parser.add_argument('dest', help='Full path to output the newly parsed Maildir.', type=str)
+parser.add_argument('user', help='Name of the Maildir to be created, usually "Maildir".', type=str)
 args = parser.parse_args()
 
 # Handle each parsed email
@@ -41,7 +41,7 @@ def processBuffer(bufferArray, maildirDest):
             labels = str(stripped).split(': ')[1].split(',')
         elif search('^X-GM-THRID:', line):
             threadID = line.split(': ')[1]
-        elif search('^Date:', line):
+        elif search('^Date: ', line):
             mailDate = line.split(': ')[1].split(' (')[0]
             for fmt in datefmts:
                 try:
@@ -114,14 +114,6 @@ if __name__ == '__main__':
 
         mbox.close()
 
-    except FileNotFoundError as e:
-        print("Fatal error: " + str(e) + "; exiting.")
-        exit(1)
-
-    except PermissionError as e:
-        print("Fatal error: " + str(e) + "; exiting.")
-        exit(1)
-
-    except OSError as e:
+    except [ FileNotFoundError, PermissionError, OSError ] as e:
         print("Fatal error: " + str(e) + "; exiting.")
         exit(1)
